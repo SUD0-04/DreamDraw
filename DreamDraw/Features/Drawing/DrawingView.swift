@@ -11,6 +11,7 @@ import SwiftUI
 
 struct DrawingView: View {
     @EnvironmentObject private var diaryStore: DiaryStore
+    @EnvironmentObject private var settings: AppSettingsStore
     @StateObject private var viewModel = DrawingViewModel()
     @State private var isResultPresented = false
 
@@ -41,8 +42,27 @@ struct DrawingView: View {
                         .padding([.horizontal, .bottom])
                 }
             }
-            .navigationTitle("DreamDraw")
-            .navigationSubtitle("그림으로 말하는 감정 일기")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // 아동 이름을 'OO의' 형태로 DreamDraw 타이틀 위에 표시합니다.
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 0) {
+                        if !settings.childName.isEmpty {
+                            Text("\(settings.childName)의")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text("DreamDraw")
+                            .font(.headline)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(
+                        settings.childName.isEmpty
+                            ? "DreamDraw"
+                            : "\(settings.childName)의 DreamDraw"
+                    )
+                }
+            }
             .background(Color(.systemGroupedBackground))
             .sheet(isPresented: $isResultPresented) {
                 if let result = viewModel.emotionResult {
@@ -160,5 +180,6 @@ final class DreamDrawCanvasView: PKCanvasView {
 #Preview("그리기") {
     DrawingView()
         .environmentObject(DiaryStore(previewEntries: []))
+        .environmentObject(AppSettingsStore())
 }
 #endif

@@ -11,29 +11,45 @@ import SwiftUI
 
 struct GuardianSummaryView: View {
     @EnvironmentObject private var diaryStore: DiaryStore
+    @EnvironmentObject private var settings: AppSettingsStore
+    @State private var isUnlocked = false
 
     var body: some View {
         let viewModel = GuardianViewModel(entries: diaryStore.entries)
 
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    summaryCard(viewModel)
-
-                    if !viewModel.cautionEntries.isEmpty {
-                        cautionCard(viewModel.cautionEntries)
+            Group {
+                if settings.hasGuardianPasscode && !isUnlocked {
+                    GuardianLockView {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            isUnlocked = true
+                        }
                     }
-
-                    if !viewModel.chartData.isEmpty {
-                        emotionChart(viewModel.chartData)
-                    }
-
-                    recentList(viewModel.recentEntries)
+                } else {
+                    summaryContent(viewModel)
                 }
-                .padding()
             }
             .navigationTitle("보호자 요약")
             .background(Color(.systemGroupedBackground))
+        }
+    }
+
+    private func summaryContent(_ viewModel: GuardianViewModel) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                summaryCard(viewModel)
+
+                if !viewModel.cautionEntries.isEmpty {
+                    cautionCard(viewModel.cautionEntries)
+                }
+
+                if !viewModel.chartData.isEmpty {
+                    emotionChart(viewModel.chartData)
+                }
+
+                recentList(viewModel.recentEntries)
+            }
+            .padding()
         }
     }
 
@@ -156,10 +172,12 @@ struct GuardianSummaryView: View {
 #Preview("빈 요약") {
     GuardianSummaryView()
         .environmentObject(DiaryStore(previewEntries: []))
+        .environmentObject(AppSettingsStore())
 }
 
 #Preview("7일 기록") {
     GuardianSummaryView()
         .environmentObject(DiaryStore(previewEntries: PreviewData.sampleEntries))
+        .environmentObject(AppSettingsStore())
 }
 #endif
