@@ -1,0 +1,22 @@
+# Xcode 사용자별 설정 (브레이크포인트, UI 상태 등)
+xcuserdata/
+*.xcuserstate
+
+# 빌드 산출물
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# 서명 관련 (실수 커밋 방지)
+*.mobileprovision
+*.p12
+*.cer
+
+# macOS
+.DS_Store
